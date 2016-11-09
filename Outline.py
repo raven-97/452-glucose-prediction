@@ -21,8 +21,10 @@
 #
 #
 
-# I'm going to commit this message to the repository
 
-# Hey guys
 
-print "farts"
+import tensorflow as tf
+import numpy as np
+
+
+print 'farts new'
