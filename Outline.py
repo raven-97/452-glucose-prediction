@@ -27,8 +27,8 @@ import numpy as np
 
 with open ("~/452-project/tblADataRTCGM_Blind_Baseline_Split_output/1.csv", "r") as file:
 	for line in file:
-	    B = line.split(",")
-	    A.append(B)
-    file.closed
+		B = line.split(",")
+		A.append(B)
+	file.closed
 	
 print A
