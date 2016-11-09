@@ -25,13 +25,43 @@
 import tensorflow as tf
 import numpy as np
 
-A=[]
-B=[]
 
-with open ("/home/group/452-project/tblADataRTCGM_Blind_Baseline_Split_output/1.csv", "r") as file:
-	for line in file:
-		B = line.split(",")
-		A.append(B)
-	file.closed
+def get_data():
+	A=[]
+	B=[]
+
+	with open ("/home/group/452-project/tblADataRTCGM_Blind_Baseline_Split_output/1.csv", "r") as file:
+		for line in file:
+			B = line.split(",")
+			A.append(B)
+		file.closed
+		
+	return A
 	
-print A
+def main():
+	
+	test_data = get_data()
+	print test_data[1]
+	
+	
+	
+	
+	
+	
+	
+if __name__ == '__main__':
+	main()
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
