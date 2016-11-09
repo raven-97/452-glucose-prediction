@@ -34,8 +34,17 @@ def get_data():
 		for line in file:
 			B = line.split(",")
 			A.append(B)
+			
+			last = A[-1]
+			last = last.substring(0,last.length()-4)
+			
+			array = range(0,len(A))
+			for i in array:
+				A[i] = float(A[i])
+			
 		file.closed
-		
+
+	
 	return A
 	
 def main():
