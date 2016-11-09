@@ -39,7 +39,7 @@ def get_data():
 			
 			list_element = A[j]					# access current list element
 			last = list_element[-1]
-			last = last.substring(0,last.length()-4)
+			last = last[:-4]
 			
 			array = range(0,len(list_element))
 			for i in array:
