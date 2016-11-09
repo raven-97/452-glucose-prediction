@@ -29,19 +29,23 @@ import numpy as np
 def get_data():
 	A=[]
 	B=[]
+	j = 0
 
 	with open ("/home/group/452-project/tblADataRTCGM_Blind_Baseline_Split_output/1.csv", "r") as file:
 		for line in file:
 			B = line.split(",")
 			A.append(B)
 			
-			list_element = A[line]					# access current list element
+			
+			list_element = A[j]					# access current list element
 			last = list_element[-1]
 			last = last.substring(0,last.length()-4)
 			
 			array = range(0,len(list_element))
 			for i in array:
-				list_element[i] = float(list_element[i])			
+				list_element[i] = float(list_element[i])	
+
+			j += 1
 		file.closed
 
 	
