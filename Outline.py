@@ -25,6 +25,9 @@
 import tensorflow as tf
 import numpy as np
 
+A=[]
+B=[]
+
 with open ("/home/group/452-project/tblADataRTCGM_Blind_Baseline_Split_output/1.csv", "r") as file:
 	for line in file:
 		B = line.split(",")
