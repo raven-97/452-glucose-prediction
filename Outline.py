@@ -35,13 +35,13 @@ def get_data():
 			B = line.split(",")
 			A.append(B)
 			
-			last = A[-1]
+			list_element = A[line]					# access current list element
+			last = list_element[-1]
 			last = last.substring(0,last.length()-4)
 			
-			array = range(0,len(A))
+			array = range(0,len(list_element))
 			for i in array:
-				A[i] = float(A[i])
-			
+				list_element[i] = float(list_element[i])			
 		file.closed
 
 	
