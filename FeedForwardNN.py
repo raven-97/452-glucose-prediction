@@ -118,12 +118,12 @@ def evaluateNetwork(session, inData, outData, x, y, y_) :
         if(predicted < 70) : # If predicted low
             if(desired < 70) : # If low prediction was correct
                 numPredictedLows += 1
-            elif((desired - predicted) > 6) : # If low prediction was incorrect and error was 'large'
+            elif((desired - predicted) > 8) : # If low prediction was incorrect and error was 'large'
                 numFalseLows += 1
         elif(predicted > 200) : # If predicted high
             if(desired > 200) : # If high prediction was correct
                 numPredictedHighs += 1
-            elif((predicted - desired) > 6) : # If high prediction was incorrect and error was 'large'
+            elif((predicted - desired) > 8) : # If high prediction was incorrect and error was 'large'
                 numFalseHighs += 1
 
     # Print results:
@@ -143,8 +143,8 @@ def evaluateNetwork(session, inData, outData, x, y, y_) :
 
 def main(_):
     # Import the training data and test data:
-    trainData_in, trainData_out = readData('tblADataRTCGM_Blind_Baseline_Split_output/1_train.csv')
-    testData_in, testData_out = readData('tblADataRTCGM_Blind_Baseline_Split_output/1_test.csv')
+    trainData_in, trainData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_20/151_train.csv')
+    testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_20/151_test.csv')
 
     ### Create the model ###
     x = tf.placeholder(tf.float32, [None, 7]) # Input placeholder
@@ -189,7 +189,7 @@ def main(_):
         sess.run(train_step, feed_dict={x: trainData_in, y_: trainData_out})
         mse = sess.run(tf.reduce_mean(tf.square(y - y_)), feed_dict={x: testData_in, y_: testData_out})
         errors.append(mse)
-        #print(mse)
+        print(mse)
     ### Test ###
     # Apply network on all test data and compute MSE:
     #mse = sess.run(tf.reduce_mean(tf.square(y - y_)), feed_dict={x: testData_in, y_: testData_out})
