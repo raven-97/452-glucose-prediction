@@ -9,28 +9,25 @@ from glob import glob
 PREDICTION_HORIZON = 20
 inputFolder = 'tblADataRTCGM_Unblinded_ControlGroup_1'
 patients = glob(inputFolder + '/*')
-outputFolder = inputFolder + '_output_' + str(PREDICTION_HORIZON)
+outputFolder = inputFolder + '_output_RNN_' + str(PREDICTION_HORIZON)
 if not os.path.exists(outputFolder):
     os.makedirs(outputFolder)
 
 
 #
 # Goal is to create data points consisting of a blood sugar measurement at a
-# prediction time horizon of 30 mins, and measurements at the following times:
+# prediction time horizon of 20 mins, and measurements at the following times:
 #   - Current time
 #   - Current time - 10 mins
 #   - Current time - 20 mins
 #   - Current time - 30 mins
 #   - Current time - 40 mins
+#   - Current time - 50 mins
 #   - Current time - 60 mins
-#   - Current time - 90 mins
 #
 # When the specified measurement time does not coincide with a measurement,
 # the blood sugar level at the specified time will be determined by linear
 # interpolation of the two nearest measurement points.
-#
-# Data points that represent potentially dangerous sugar lows or highs will be
-# flagged for use in validation.
 #
 # Measurement points will only be used if they meet the following criteria:
 #   - Values determined from linear interpolation must be determined from
@@ -90,8 +87,8 @@ for patientFolder in patients :
                 time3 = time2 - tenMinutes # 50 mins ago
                 time4 = time3 - tenMinutes # 60 mins ago
                 time5 = time4 - tenMinutes # 70 mins ago
-                time6 = time5 - timedelta(minutes = 20) # 90 mins ago
-                time7 = time6 - timedelta(minutes = 30) # 120 mins ago
+                time6 = time5 - tenMinutes # 80 mins ago
+                time7 = time6 - tenMinutes # 90 mins ago
 
                 # Initialize all blood sugar measurements
                 bloodSugar1 = -1.0
@@ -136,8 +133,6 @@ for patientFolder in patients :
         # End for each input data predictionPoint
 
         # Write results to output files:
-        # Ouput file contains blood sugar measurments with following format on each line:
-        # '90 mins ago','60 mins ago','40 mins ago','30 mins ago','20 mins ago','10 mins ago','cur time','30 mins ahead'
         with open(outputTrainFile, 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(processedData_Train)
