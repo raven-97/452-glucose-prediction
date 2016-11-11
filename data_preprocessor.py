@@ -6,10 +6,10 @@ from datetime import datetime
 from datetime import timedelta
 from glob import glob
 #import dateutil.parser # For parsing the date/time format used in the raw data
-
-inputFolder = 'tblADataRTCGM_Blind_Baseline_Split'
+PREDICTION_HORIZON = 20
+inputFolder = 'tblADataRTCGM_Unblinded_ControlGroup_1'
 patients = glob(inputFolder + '/*')
-outputFolder = inputFolder + '_output'
+outputFolder = inputFolder + '_output_' + str(PREDICTION_HORIZON)
 if not os.path.exists(outputFolder):
     os.makedirs(outputFolder)
 
@@ -37,10 +37,6 @@ if not os.path.exists(outputFolder):
 #       measurements separated by no more than 11 mins
 #   - All values must be taken from between the hours of 11pm and 7am. In other
 #       words, the first prediction time considered will be ~1am.
-#   - This is not implemented yet:
-#       No rapid spikes or drops in blood sugar are present within the time frame
-#       (curTime - 100) to (curTime + 40), as these most likely represent
-#       interference in the form of nutrition or insulin
 #
 
 # Performs a linear interpolation of the blood sugar measurements between two
@@ -62,9 +58,9 @@ for patientFolder in patients :
     days = glob(patientFolder + '/*')
     for dayFile in days :
         # Create new empty lists
-        data = [];
-        processedData_Train = [];
-        processedData_Test = [];
+        data = []
+        processedData_Train = []
+        processedData_Test = []
         with open(dayFile, newline='') as f:
             reader = csv.reader(f)
             # Populate the list with a full day worth of data
@@ -79,13 +75,16 @@ for patientFolder in patients :
                 data.append(newTuple)
         # End with file
 
+        # Make sure data is sorted by time:
+        data.sort(key=lambda tup: tup[0])
+
         # For each data point:
         for index, predictionPoint in enumerate(data) :
             valid = 1
             # Only consider points between 1AM and 7AM:
             if predictionPoint[0].hour >= 1 and predictionPoint[0].hour < 7 :
                 # Determine all desired measurement times:
-                time1 = predictionPoint[0] - timedelta(minutes = 30) # 30 mins ago
+                time1 = predictionPoint[0] - timedelta(minutes = PREDICTION_HORIZON) # 30 mins ago
                 tenMinutes = timedelta(minutes = 10)
                 time2 = time1 - tenMinutes # 40 mins ago
                 time3 = time2 - tenMinutes # 50 mins ago
