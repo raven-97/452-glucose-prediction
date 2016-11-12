@@ -4,7 +4,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.python.ops import rnn, rnn_cell
 import matplotlib.pyplot as plt
 
-NUM_EPOCHS = 200
+NUM_EPOCHS = 500
 batch_size = 128
 chunk_size = 1
 n_chunks = 7
@@ -148,11 +148,20 @@ def train_neural_network(x):
         # Per-epoch training:
         for i in range(NUM_EPOCHS):
             sess.run(optimizer, feed_dict={x: trainData_in, y: trainData_out})
-            if i % 10 == 0 :
-                mse = sess.run(tf.reduce_mean(tf.square(prediction - y)), feed_dict={x: testData_in, y: testData_out})
-                errors.append(mse)
-                print(mse)
+            #if i % 10 == 0 :
+            #    mse = sess.run(tf.reduce_mean(tf.square(prediction - y)), feed_dict={x: testData_in, y: testData_out})
+            #    errors.append(mse)
+            #    print(mse)
 
+        print('Patient 174 data:')
+        evaluateNetwork(sess, testData_in, testData_out, prediction)
+        print('Patient 149 data:')
+        testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/149_test.csv')
+        testData_in = np.reshape(testData_in, [-1,n_chunks,chunk_size])
+        evaluateNetwork(sess, testData_in, testData_out, prediction)
+        print('Patient 151 data:')
+        testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/151_test.csv')
+        testData_in = np.reshape(testData_in, [-1,n_chunks,chunk_size])
         evaluateNetwork(sess, testData_in, testData_out, prediction)
         # Uncomment this to evaluate the current network on a different patient:
         #testData_in, testData_out = readData('tblADataRTCGM_Blind_Baseline_Split_output/78_test.csv')

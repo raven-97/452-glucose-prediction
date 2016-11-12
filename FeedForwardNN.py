@@ -27,7 +27,7 @@ from __future__ import print_function
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-NUM_EPOCHS = 1000 # Number of training epochs
+NUM_EPOCHS = 1500 # Number of training epochs
 
 # readData reads data from the specified pre-processed input data file.
 # The function returns an array of input data points and an array of the
@@ -90,6 +90,7 @@ def evaluateNetwork(session, inData, outData, prediction) :
         # Apply network on current point:
         predicted = session.run(prediction, feed_dict={x: [inputPoint]})
         desired = outData[i][0]
+
 
         # Update numLows, numHighs:
         if(desired < 70) :
@@ -182,10 +183,10 @@ def trainFFNN(x):
         # Per-Epoch training:
         sess.run(train_step, feed_dict={x: trainData_in, y_desired: trainData_out})
         # Print MSE on test data after every 10 epochs
-        if i % 10 == 0 :
-            mse = sess.run(tf.reduce_mean(tf.square(prediction - y_desired)), feed_dict={x: testData_in, y_desired: testData_out})
-            errors.append(mse)
-            print(mse)
+        # i % 10 == 0 :
+        #    mse = sess.run(tf.reduce_mean(tf.square(prediction - y_desired)), feed_dict={x: testData_in, y_desired: testData_out})
+        #    errors.append(mse)
+        #    print(mse)
 
     # Output the desired and actual outputs for each test data point
     #for i, inputPoint in enumerate(testData_in) :
@@ -193,6 +194,13 @@ def trainFFNN(x):
     #    print('desired: ', testData_out[i], ', actual: ', output)
 
     # Test:
+    print('Patient 174 data:')
+    evaluateNetwork(sess, testData_in, testData_out, prediction)
+    print('Patient 149 data:')
+    testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/149_test.csv')
+    evaluateNetwork(sess, testData_in, testData_out, prediction)
+    print('Patient 151 data:')
+    testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/151_test.csv')
     evaluateNetwork(sess, testData_in, testData_out, prediction)
     # Uncomment this to evaluate the current network on a different patient:
     #testData_in, testData_out = readData('tblADataRTCGM_Blind_Baseline_Split_output/78_test.csv')
