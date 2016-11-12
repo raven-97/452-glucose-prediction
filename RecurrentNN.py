@@ -2,8 +2,9 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.python.ops import rnn, rnn_cell
+import matplotlib.pyplot as plt
 
-NUM_EPOCHS = 100
+NUM_EPOCHS = 200
 batch_size = 128
 chunk_size = 1
 n_chunks = 7
@@ -107,56 +108,61 @@ def evaluateNetwork(session, inData, outData, prediction) :
 x = tf.placeholder('float', [None, n_chunks, chunk_size])
 y = tf.placeholder('float')
 
+# recurrent_neural_network() defines the RNN model. The network architecture
+# used consists of a single LSTM cell followed by an output layer.
 def recurrent_neural_network(x):
     layer = {'weights':tf.Variable(tf.random_normal([rnn_size, 1])),
              'biases':tf.Variable(tf.random_normal([1]))}
 
+    # Reshape x to the format desired by the LSTM:
     x = tf.transpose(x, [1,0,2])
     x = tf.reshape(x, [-1, chunk_size])
     x = tf.split(0, n_chunks, x)
 
     lstm_cell = rnn_cell.BasicLSTMCell(rnn_size, state_is_tuple=True, activation=tf.nn.relu)
-    #lstm_cell = rnn_cell.BasicRNNCell(rnn_size)
     outputs, states = rnn.rnn(lstm_cell, x, dtype=tf.float32)
 
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
 
     return output
 
+# The RNN is trained by feeding in sequences of glucose measurements seprarated
+# by 10 minute intervals, and the desired output at a 20 minute prediction horizon.
 def train_neural_network(x):
-    trainData_in, trainData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/151_train.csv')
-    testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/151_test.csv')
+    trainData_in, trainData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/174_train.csv')
+    testData_in, testData_out = readData('tblADataRTCGM_Unblinded_ControlGroup_1_output_RNN_20/174_test.csv')
     trainData_in = np.reshape(trainData_in, [-1,n_chunks,chunk_size])
     testData_in = np.reshape(testData_in, [-1,n_chunks,chunk_size])
     prediction = recurrent_neural_network(x)
-    cost = tf.reduce_mean(tf.square(prediction - y))
-    optimizer = tf.train.AdamOptimizer(0.1).minimize(cost)
 
+    # Use MSE as cost function to be minimized
+    cost = tf.reduce_mean(tf.square(prediction - y))
+
+    # AdamOptimizer produced better results than simple GradientDescentOptimizer
+    optimizer = tf.train.AdamOptimizer(0.01).minimize(cost)
+
+    errors = []
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 
+        # Per-epoch training:
         for i in range(NUM_EPOCHS):
             sess.run(optimizer, feed_dict={x: trainData_in, y: trainData_out})
-            mse = sess.run(tf.reduce_mean(tf.square(prediction - y)), feed_dict={x: testData_in, y: testData_out})
-            print(mse)
+            if i % 10 == 0 :
+                mse = sess.run(tf.reduce_mean(tf.square(prediction - y)), feed_dict={x: testData_in, y: testData_out})
+                errors.append(mse)
+                print(mse)
+
         evaluateNetwork(sess, testData_in, testData_out, prediction)
-        #for i, inputPoint in enumerate(testData_in) :
-        #    output = sess.run(prediction, feed_dict={x: [inputPoint]})
-        #    print('desired: ', testData_out[i], ', actual: ', output)
-        #for epoch in range(hm_epochs):
-        #    epoch_loss = 0
-        #    for _ in range(int(mnist.train.num_examples/batch_size)):
-        #        epoch_x, epoch_y = mnist.train.next_batch(batch_size)
-        #        epoch_x = epoch_x.reshape((batch_size,n_chunks,chunk_size))
+        # Uncomment this to evaluate the current network on a different patient:
+        #testData_in, testData_out = readData('tblADataRTCGM_Blind_Baseline_Split_output/78_test.csv')
+        #evaluateNetwork(sess, testData_in, testData_out, prediciton)
 
-        #        _, c = sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
-        #        epoch_loss += c
-
-        #    print('Epoch', epoch, 'completed out of',hm_epochs,'loss:',epoch_loss)
-
-        #correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
-
-        #accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        #print('Accuracy:',accuracy.eval({x:mnist.test.images.reshape((-1, n_chunks, chunk_size)), y:mnist.test.labels}))
+        # Plot the MSE throughout training
+        #plt.plot(errors)
+        #plt.xlabel('#epochs')
+        #plt.ylabel('MSE')
+        #plt.show()
+#End train_neural_network(x)
 
 train_neural_network(x)
