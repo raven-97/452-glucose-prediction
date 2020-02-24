@@ -1,7 +1,8 @@
 import tensorflow as tf
 import numpy as np
-from tensorflow.examples.tutorials.mnist import input_data
-from tensorflow.python.ops import rnn, rnn_cell
+#from tensorflow.examples.tutorials.mnist import input_data
+#from tensorflow.python.ops import rnn, rnn_cell
+from tensorflow.contrib import rnn 
 import matplotlib.pyplot as plt
 
 NUM_EPOCHS = 500
@@ -111,16 +112,16 @@ y = tf.placeholder('float')
 # recurrent_neural_network() defines the RNN model. The network architecture
 # used consists of a single LSTM cell followed by an output layer.
 def recurrent_neural_network(x):
-    layer = {'weights':tf.Variable(tf.random_normal([rnn_size, 1])),
-             'biases':tf.Variable(tf.random_normal([1]))}
+    layer = {'weights':tf.Variable(tf.random.normal([rnn_size, 1])),
+             'biases':tf.Variable(tf.random.normal([1]))}
 
     # Reshape x to the format desired by the LSTM:
     x = tf.transpose(x, [1,0,2])
     x = tf.reshape(x, [-1, chunk_size])
-    x = tf.split(0, n_chunks, x)
+    x = tf.split(x, n_chunks, 0)
 
-    lstm_cell = rnn_cell.BasicLSTMCell(rnn_size, state_is_tuple=True, activation=tf.nn.relu)
-    outputs, states = rnn.rnn(lstm_cell, x, dtype=tf.float32)
+    lstm_cell = rnn.BasicLSTMCell(rnn_size, state_is_tuple=True, activation=tf.nn.relu)
+    outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
 
     output = tf.matmul(outputs[-1], layer['weights']) + layer['biases']
 
